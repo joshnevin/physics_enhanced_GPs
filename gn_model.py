@@ -1,9 +1,9 @@
 #**Inputs**: span length [km], operating central wavelength [nm], number of wavelengths, nonlinearity coefficient[1/(W*km)]
 # dispersion coefficient[ps^2/km], loss [db/km], symbol rate [GBd], channel bandwidth [GHz], grid spacing [GHz]
-# EDFA noise figure [dB], number of spans
+# EDFA noise figure [dB], number of spans, tranciever back to back SNR [dB]
 import numpy as np
 class GN_model:
-    def __init__(self, span_len, lam_op, num_lam, nl_cof, disp_cof,  alpha, r_sym, bchrs, grid_sp, n_fig, num_spans):
+    def __init__(self, span_len, lam_op, num_lam, nl_cof, disp_cof,  alpha, r_sym, bchrs, grid_sp, n_fig, num_spans, trxbtb):
         self.span_len = span_len
         self.lam_op = lam_op
         self.num_lam = num_lam
@@ -22,6 +22,7 @@ class GN_model:
         self.l_eff_as = 1/(2*self.al_lin) # the asymptotic effective length [km]  
         self.h = 6.63*1e-34 # Planck's constant [Js]
         self.Bwdm = self.bchrs * self.num_lam ** ( self.bchrs / self.grid_sp )  # channel BW [GHz]
+        self.trxbtb = trxbtb
         self.epsilon = 0.3*np.log(1 + ( 6 * self.l_eff_as ) / ( self.span_len * np.arcsinh( 0.5*np.pi**2 * self.beta2 *self.l_eff_as * self.Bwdm**2 )  )  )
     def predict_snr(self, p_ch):
         Gwdm = (1e-3*self.convert_to_lin(p_ch))/(self.bchrs*1e9)  # [W]
@@ -29,7 +30,7 @@ class GN_model:
         Pase = self.n_fig*self.h*self.freq*(self.convert_to_lin(self.alpha*self.span_len) - 1)*self.bchrs*1e9*self.num_spans       
         Pch = 1e-3*10**(p_ch/10) 
         snr = (Pch/(Pase + Gnli*self.bchrs*1e9))
-        snr = self.apply_trx_b2b(snr, 16.5)
+        snr = self.apply_trx_b2b(snr, self.trxbtb)
         #snr = ( snr**(-1) + (self.convert_to_lin(16.5))**(-1) )**(-1)
         return self.convert_to_db(snr)
     def find_pch_opt(self):  # return optimal Pch in dBm
@@ -45,7 +46,7 @@ class GN_model:
         snrsw = (Pchsw)/(Pasesw*np.ones(numpch) + Gnlisw*self.bchrs*1e9)
         return PchdBm[np.argmax(snrsw)]
     def apply_trx_b2b(self, snr, snr_pen):
-        return ( snr**(-1) + (self.convert_to_lin(16.5))**(-1) )**(-1)
+        return ( snr**(-1) + (self.convert_to_lin(snr_pen))**(-1) )**(-1)
     def convert_to_lin(self, x):
         return 10**(x/10)
     def convert_to_db(self, x):
