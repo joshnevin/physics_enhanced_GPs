@@ -34,7 +34,6 @@ class GN_model:
         Pch = 1e-3*10**(p_ch/10)
         snr = (Pch/(Pase + Gnli*self.bchrs*1e9))
         snr = self.apply_trx_b2b(snr, self.trxbtb, self.trxsig, self.rseed)
-        #snr = ( snr**(-1) + (self.convert_to_lin(16.5))**(-1) )**(-1)
         return self.convert_to_db(snr)
     def find_pch_opt(self):  # return optimal Pch in dBm
         PchdBm = np.linspace(-6,6,500)  # 500 datapoints for higher resolution of Pch
@@ -48,9 +47,10 @@ class GN_model:
         Pasesw = NFl*self.h*self.freq*(Gl - 1)*self.bchrs*1e9 # [W] the ASE noise power in one Nyquist channel across all spans
         snrsw = (Pchsw)/(Pasesw*np.ones(numpch) + Gnlisw*self.bchrs*1e9)
         return PchdBm[np.argmax(snrsw)]
-    def apply_trx_b2b(self, snr, snr_pen, snr_sig, rseed):
+    def apply_trx_b2b(self, snr, snr_pen, snr_sig, rseed):  # inputs in dB, output linear SNR
         seed(rseed)
         return ( snr**(-1) + ( self.convert_to_lin(normal(snr_pen,  snr_sig, len(snr))) )**(-1) )**(-1)
+        #return ( snr**(-1) + (self.convert_to_lin(snr_pen))**(-1) +  self.convert_to_lin(normal(0,  snr_sig, len(snr)))  )**(-1)
     def convert_to_lin(self, x):
         return 10**(x/10)
     def convert_to_db(self, x):
