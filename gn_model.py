@@ -35,6 +35,10 @@ class GN_model:
         snr = (Pch/(Pase + Gnli*self.bchrs*1e9))
         snr = self.apply_trx_b2b(snr, self.trxbtb, self.trxsig, self.rseed)
         return self.convert_to_db(snr)
+    def calc_eta(self):
+        return  (1e24*(8/27)*(self.nl_cof**2)*(self.l_eff**2) ) /(np.pi*self.beta2*self.l_eff_as*(self.bchrs*1e9)**2)  *  (np.arcsinh((np.pi**2)*0.5*self.beta2*self.l_eff_as*(self.bchrs**2)*(self.num_lam**((2*self.bchrs)/self.grid_sp))  ) )*self.num_spans**(1 + self.epsilon)
+    def calc_Pase(self):
+        return self.n_fig*self.h*self.freq*(self.convert_to_lin(self.alpha*self.span_len) - 1)*self.bchrs*1e9*self.num_spans
     def find_pch_opt(self):  # return optimal Pch in dBm
         PchdBm = np.linspace(-6,6,500)  # 500 datapoints for higher resolution of Pch
         numpch = len(PchdBm)
