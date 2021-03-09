@@ -53,7 +53,9 @@ class GN_model:
         return PchdBm[np.argmax(snrsw)]
     def apply_trx_b2b(self, snr, snr_pen, snr_sig, rseed):  # inputs in dB, output linear SNR
         seed(rseed)
-        return ( snr**(-1) + ( self.convert_to_lin(normal(snr_pen,  snr_sig, len(snr))) )**(-1) )**(-1)
+        #return ( snr**(-1) + ( self.convert_to_lin(normal(snr_pen,  snr_sig, len(snr))) )**(-1) )**(-1)  # Gaussian SNR penalty
+        #return ( snr**(-1) +  self.convert_to_lin(normal(snr_pen,  snr_sig, len(snr))) )**(-1)  # Gaussian NSR
+        return ( snr**(-1) +  normal(self.convert_to_lin(snr_pen),  self.convert_to_lin(snr_sig), len(snr)) )**(-1)  # Gaussian NSR 
         #return ( snr**(-1) + (self.convert_to_lin(snr_pen))**(-1) +  self.convert_to_lin(normal(0,  snr_sig, len(snr)))  )**(-1)
     def convert_to_lin(self, x):
         return 10**(x/10)
