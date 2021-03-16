@@ -30,15 +30,19 @@ class GN_model:
     def predict_snr(self, p_ch):
         Gwdm = (1e-3*self.convert_to_lin(p_ch))/(self.bchrs*1e9)  # [W]
         Gnli = (1e24*(8/27)*(self.nl_cof**2)*(Gwdm**3)*(self.l_eff**2) ) /(np.pi*self.beta2*self.l_eff_as)  *  (np.arcsinh((np.pi**2)*0.5*self.beta2*self.l_eff_as*(self.bchrs**2)*(self.num_lam**((2*self.bchrs)/self.grid_sp))  ) )*self.num_spans**(1 + self.epsilon)
-        Pase = self.n_fig*self.h*self.freq*(self.convert_to_lin(self.alpha*self.span_len) - 1)*self.bchrs*1e9*self.num_spans
+        Pase = self.convert_to_lin(self.n_fig)*self.h*self.freq*(self.convert_to_lin(self.alpha*self.span_len) - 1)*self.bchrs*1e9*self.num_spans
         Pch = 1e-3*10**(p_ch/10)
         snr = (Pch/(Pase + Gnli*self.bchrs*1e9))
         snr = self.apply_trx_b2b(snr, self.trxbtb, self.trxsig, self.rseed)
         return self.convert_to_db(snr)
-    def calc_eta(self):
-        return  (1e24*(8/27)*(self.nl_cof**2)*(self.l_eff**2) ) /(np.pi*self.beta2*self.l_eff_as*(self.bchrs*1e9)**2)  *  (np.arcsinh((np.pi**2)*0.5*self.beta2*self.l_eff_as*(self.bchrs**2)*(self.num_lam**((2*self.bchrs)/self.grid_sp))  ) )*self.num_spans**(1 + self.epsilon)
+    def calc_eta(self, p_ch):
+        Gwdm = (1e-3*self.convert_to_lin(p_ch))/(self.bchrs*1e9)
+        Gnli = (1e24*(8/27)*(self.nl_cof**2)*(Gwdm**3)*(self.l_eff**2) ) /(np.pi*self.beta2*self.l_eff_as)  *  (np.arcsinh((np.pi**2)*0.5*self.beta2*self.l_eff_as*(self.bchrs**2)*(self.num_lam**((2*self.bchrs)/self.grid_sp))  ) )*self.num_spans**(1 + self.epsilon)
+        eta = Gnli/(Gwdm**3 * (self.bchrs*1e9)**2)
+        return eta
+        #return  (1e24*(8/27)*(self.convert_to_lin(self.nl_cof)**2)*(self.l_eff**2) ) /(np.pi*self.beta2*self.l_eff_as*(self.bchrs*1e9)**2)  *  (np.arcsinh((np.pi**2)*0.5*self.beta2*self.l_eff_as*(self.bchrs**2)*(self.num_lam**((2*self.bchrs)/self.grid_sp))  ) )*self.num_spans**(1 + self.epsilon)
     def calc_Pase(self):
-        return self.n_fig*self.h*self.freq*(self.convert_to_lin(self.alpha*self.span_len) - 1)*self.bchrs*1e9*self.num_spans
+        return self.convert_to_lin(self.n_fig)*self.h*self.freq*(self.convert_to_lin(self.alpha*self.span_len) - 1)*self.bchrs*1e9*self.num_spans
     def find_pch_opt(self):  # return optimal Pch in dBm
         PchdBm = np.linspace(-6,6,500)  # 500 datapoints for higher resolution of Pch
         numpch = len(PchdBm)
@@ -55,7 +59,7 @@ class GN_model:
         seed(rseed)
         #return ( snr**(-1) + ( self.convert_to_lin(normal(snr_pen,  snr_sig, len(snr))) )**(-1) )**(-1)  # Gaussian SNR penalty
         #return ( snr**(-1) +  self.convert_to_lin(normal(snr_pen,  snr_sig, len(snr))) )**(-1)  # Gaussian NSR
-        return ( snr**(-1) +  normal(self.convert_to_lin(snr_pen),  self.convert_to_lin(snr_sig), len(snr)) )**(-1)  # Gaussian NSR 
+        return ( snr**(-1) +  normal(self.convert_to_lin(snr_pen),  self.convert_to_lin(snr_sig), len(snr)) )**(-1)  # Gaussian NSR
         #return ( snr**(-1) + (self.convert_to_lin(snr_pen))**(-1) +  self.convert_to_lin(normal(0,  snr_sig, len(snr)))  )**(-1)
     def convert_to_lin(self, x):
         return 10**(x/10)
