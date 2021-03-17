@@ -60,7 +60,7 @@ class GN_model:
         #return ( snr**(-1) + ( self.convert_to_lin(normal(snr_pen,  snr_sig, len(snr))) )**(-1) )**(-1)  # Gaussian SNR penalty
         #return ( snr**(-1) +  self.convert_to_lin(normal(snr_pen,  snr_sig, len(snr))) )**(-1)  # Gaussian NSR
         return ( snr**(-1) +  normal(self.convert_to_lin(snr_pen),  self.convert_to_lin(snr_sig), len(snr)) )**(-1)  # Gaussian NSR
-        #return ( snr**(-1) + (self.convert_to_lin(snr_pen))**(-1) +  self.convert_to_lin(normal(0,  snr_sig, len(snr)))  )**(-1)
+        #return ( snr**(-1) + snr_sig  )**(-1)  # uncertainty in power
     def convert_to_lin(self, x):
         return 10**(x/10)
     def convert_to_db(self, x):
