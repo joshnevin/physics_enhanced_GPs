@@ -35,14 +35,6 @@ class GN_model:
         snr = (Pch/(Pase + Gnli*self.bchrs*1e9))
         snr = self.apply_trx_b2b(snr, self.trxbtb, self.trxsig, self.rseed)
         return self.convert_to_db(snr)
-    def predict_snr_pvar(self, p_ch):
-        Gwdm = (1e-3*self.convert_to_lin(p_ch))/(self.bchrs*1e9)  # [W]
-        Gnli = (1e24*(8/27)*(self.nl_cof**2)*(Gwdm**3)*(self.l_eff**2) ) /(np.pi*self.beta2*self.l_eff_as)  *  (np.arcsinh((np.pi**2)*0.5*self.beta2*self.l_eff_as*(self.bchrs**2)*(self.num_lam**((2*self.bchrs)/self.grid_sp))  ) )*self.num_spans**(1 + self.epsilon)
-        Pase = self.convert_to_lin(self.n_fig)*self.h*self.freq*(self.convert_to_lin(self.alpha*self.span_len) - 1)*self.bchrs*1e9*self.num_spans
-        Pch = 1e-3*10**(p_ch/10)
-        snr = (Pch/(Pase + Gnli*self.bchrs*1e9))
-        snr = self.apply_trx_b2b_pvar(snr, self.trxbtb)
-        return self.convert_to_db(snr)
     def calc_eta(self, p_ch):
         Gwdm = (1e-3*self.convert_to_lin(p_ch))/(self.bchrs*1e9)
         Gnli = (1e24*(8/27)*(self.nl_cof**2)*(Gwdm**3)*(self.l_eff**2) ) /(np.pi*self.beta2*self.l_eff_as)  *  (np.arcsinh((np.pi**2)*0.5*self.beta2*self.l_eff_as*(self.bchrs**2)*(self.num_lam**((2*self.bchrs)/self.grid_sp))  ) )*self.num_spans**(1 + self.epsilon)
