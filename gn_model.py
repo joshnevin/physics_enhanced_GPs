@@ -39,10 +39,18 @@ class GN_model:
         Gwdm = (1e-3*self.convert_to_lin(p_ch))/(self.bchrs*1e9)
         Gnli = (1e24*(8/27)*(self.nl_cof**2)*(Gwdm**3)*(self.l_eff**2) ) /(np.pi*self.beta2*self.l_eff_as)  *  (np.arcsinh((np.pi**2)*0.5*self.beta2*self.l_eff_as*(self.bchrs**2)*(self.num_lam**((2*self.bchrs)/self.grid_sp))  ) )*self.num_spans**(1 + self.epsilon)
         eta = Gnli/(Gwdm**3 * (self.bchrs*1e9)**2)
+        #eta = (Gnli*self.r_sym*1e9)/(Gwdm**3 * (self.bchrs*1e9)**3)
         return eta
         #return  (1e24*(8/27)*(self.convert_to_lin(self.nl_cof)**2)*(self.l_eff**2) ) /(np.pi*self.beta2*self.l_eff_as*(self.bchrs*1e9)**2)  *  (np.arcsinh((np.pi**2)*0.5*self.beta2*self.l_eff_as*(self.bchrs**2)*(self.num_lam**((2*self.bchrs)/self.grid_sp))  ) )*self.num_spans**(1 + self.epsilon)
     def calc_Pase(self):
-        return self.convert_to_lin(self.n_fig)*self.h*self.freq*(self.convert_to_lin(self.alpha*self.span_len) - 1)*self.bchrs*1e9*self.num_spans
+        #return self.convert_to_lin(self.n_fig)*self.h*self.freq*(self.convert_to_lin(self.alpha*self.span_len) - 1)*self.bchrs*1e9*self.num_spans
+        return self.convert_to_lin(self.n_fig)*self.h*self.freq*(self.convert_to_lin(self.alpha*self.span_len) - 1)*self.r_sym*1e9*self.num_spans
+    def calc_Pase_G(self, gain):
+        return self.convert_to_lin(self.n_fig)*self.h*self.freq*(self.convert_to_lin(gain) - 1)*self.bchrs*1e9*self.num_spans
+    def calc_gnli0(self, p_ch, Nch):  # for comparison with Poggiolini Fig. 15
+        Gwdm = (1e-3*self.convert_to_lin(p_ch))/(self.bchrs*1e9)
+        #Gwdm = 1.0
+        return (1e24*(8/27)*(self.nl_cof**2)*(Gwdm**3)*(self.l_eff**2) ) /(np.pi*self.beta2*self.l_eff_as)  *  (np.arcsinh((np.pi**2)*0.5*self.beta2*self.l_eff_as*(self.bchrs**2)*(Nch**((2*self.bchrs)/self.grid_sp))  ) )*self.num_spans**(1 + self.epsilon)
     def find_pch_opt(self):  # return optimal Pch in dBm
         PchdBm = np.linspace(-6,6,500)  # 500 datapoints for higher resolution of Pch
         numpch = len(PchdBm)
