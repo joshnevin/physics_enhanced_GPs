@@ -45,8 +45,11 @@ class GN_model:
     def calc_Pase(self):
         #return self.convert_to_lin(self.n_fig)*self.h*self.freq*(self.convert_to_lin(self.alpha*self.span_len) - 1)*self.bchrs*1e9*self.num_spans
         return self.convert_to_lin(self.n_fig)*self.h*self.freq*(self.convert_to_lin(self.alpha*self.span_len) - 1)*self.r_sym*1e9*self.num_spans
-    def calc_Pase_G(self, gain):
-        return self.convert_to_lin(self.n_fig)*self.h*self.freq*(self.convert_to_lin(gain) - 1)*self.bchrs*1e9*self.num_spans
+    def calc_Pase_Nsp(self, gain):
+        # Nsp = spontaneous emission factor
+        # Ns = No. of samples per bit (=4 for QPSK)
+        Nsp = (self.convert_to_lin(self.n_fig)*self.convert_to_lin(gain))/(2*(self.convert_to_lin(gain) - 1))
+        return 2*Nsp*self.h*self.freq*(self.convert_to_lin(self.alpha*self.span_len) - 1)*self.r_sym*1e9*self.num_spans
     def calc_gnli0(self, p_ch, Nch):  # for comparison with Poggiolini Fig. 15
         Gwdm = (1e-3*self.convert_to_lin(p_ch))/(self.bchrs*1e9)
         #Gwdm = 1.0
