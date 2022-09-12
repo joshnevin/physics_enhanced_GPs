@@ -38,7 +38,7 @@ def gen_phys_targets(pch, num_pts_phys, rseed, sig, a_opt, b_opt):
     #snr_phys = (model.predict_snr(pch_gn)).reshape(-1,1)
     snr_phys = snr_simple_gen(pch_gn, a_opt, b_opt, rseed, sig)
     return pch_gn, snr_phys
-def hyp_var_sig(sig_range, pch, num_pts_phys, snr, pch_pred, a_opt, b_opt):
+def hyp_var_sig_lin(sig_range, pch, num_pts_phys, snr, pch_pred, a_opt, b_opt):
     mus = []
     ls = []
     sigs = []
@@ -53,10 +53,10 @@ def hyp_var_sig(sig_range, pch, num_pts_phys, snr, pch_pred, a_opt, b_opt):
         ls.append(theta_phys[1])
         sigs.append(theta_phys[2])
         lmls.append(lml_phys)
-        pred_stds.append(np.mean(pred_std))
-        mses.append(calc_mae(snr, pred_mean))
+        pred_stds.append(np.mean(convert_to_lin(pred_std)))
+        mses.append(calc_mae_lin(snr, pred_mean))
     return mus, ls, sigs, lmls, pred_stds, mses
-def hyp_var_num_pts(sigma, pch, num_pts_range, snr, pch_pred, a_opt, b_opt):
+def hyp_var_num_pts_lin(sigma, pch, num_pts_range, snr, pch_pred, a_opt, b_opt):
     mus = []
     ls = []
     sigs = []
@@ -70,8 +70,8 @@ def hyp_var_num_pts(sigma, pch, num_pts_range, snr, pch_pred, a_opt, b_opt):
         ls.append(theta_phys[1])
         sigs.append(theta_phys[2])
         lmls.append(lml_phys)
-        pred_stds.append(np.mean(pred_std))
-        mses.append(calc_mae(snr, pred_mean))
+        pred_stds.append(np.mean(convert_to_lin(pred_std)))
+        mses.append(calc_mae_lin(snr, pred_mean))
     return mus, ls, sigs, lmls, pred_stds, mses
-def calc_mae(data, y):
-    return np.mean(((data - y)**2)**0.5)
+def calc_mae_lin(data, y):
+    return convert_to_db(np.mean(convert_to_lin(abs(data-y))))
