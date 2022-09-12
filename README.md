@@ -5,3 +5,5 @@ Project for designing and demonstrating physics-informed Gaussian process regres
 Includes notebooks to generate the results from:
 J.W. Nevin, F.-J. Faquero Callabero, D. Ives and S.J. Savory, Physics-Informed Gaussian Process Regression for Optical Fibre Communication Systems, Journal of Lightwave Technology, 2021.
 https://doi.org/10.1109/JLT.2021.3106714 
+
+See my fork of SciKit Learn for my implementation of the physics-informed GP, specifically the additional method fit_phys in the GaussianProcessRegressor class. 
